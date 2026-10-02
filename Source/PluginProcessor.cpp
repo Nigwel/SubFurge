@@ -515,7 +515,7 @@ void SubForgeProcessor::setStateInformation(const void* data, int size)
     if (bytes > 0 && bytes < (juce::int64) 512 * 1024 * 1024)
     {
         juce::MemoryBlock mb;
-        in.readIntoMemoryBlock(mb, (ssize_t) bytes);
+        in.readIntoMemoryBlock(mb, (juce::int64) bytes);
         loadSampleFromMemory(mb, name, false);   // keep saved root/loop params
     }
 }
