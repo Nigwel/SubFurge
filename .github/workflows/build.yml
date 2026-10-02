@@ -1,1 +1,35 @@
-
+name: Build SubForge VST3
+on:
+  push:
+  workflow_dispatch:
+jobs:
+  build:
+    strategy:
+      matrix:
+        include:
+          - os: windows-latest
+            name: SubForge-Windows-VST3
+            extra: ""
+          - os: macos-latest
+            name: SubForge-macOS-VST3
+            extra: '-DCMAKE_OSX_ARCHITECTURES=arm64;x86_64'
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure
+        run: cmake -B build -DCMAKE_BUILD_TYPE=Release "${{ matrix.extra }}"
+      - name: Build
+        run: cmake --build build --config Release --parallel
+      - name: Package (macOS)
+        if: runner.os == 'macOS'
+        run: tar -czf SubForge-macOS-VST3.tar.gz -C build/SubForge_artefacts/Release/VST3 SubForge.vst3
+      - uses: actions/upload-artifact@v4
+        if: runner.os == 'Windows'
+        with:
+          name: ${{ matrix.name }}
+          path: build/SubForge_artefacts/Release/VST3/SubForge.vst3
+      - uses: actions/upload-artifact@v4
+        if: runner.os == 'macOS'
+        with:
+          name: ${{ matrix.name }}
+          path: SubForge-macOS-VST3.tar.gz
